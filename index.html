@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Summit Academy - Library Management System</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+</head>
+<body>
+
+  <header>
+    <div class="logo-container">
+      <img src="https://images.squarespace-cdn.com/content/v1/5c3789ec3c27318db4df7cb2/1547160759082-95KJS3MGAWTHU91Z72X6/NSA-Logo.png" alt="New Summit Academy Logo" class="nsa-logo">
+      <h1>NSA Library</h1>
+    </div>
+
+    <div class="role-selector">
+      <label for="roleSelect">View Mode:</label>
+      <select id="roleSelect" onchange="toggleRole(this.value)">
+        <option value="student">Student Portal</option>
+        <option value="librarian" selected>Librarian (Circulation Desk)</option>
+      </select>
+    </div>
+  </header>
+
+  <nav class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('catalog')">📚 Catalog</button>
+    <button class="tab-btn student-only" onclick="switchTab('my-books')">📖 My Borrowed Books</button>
+    <button class="tab-btn librarian-only" onclick="switchTab('circulation')">⚡ Circulation Desk</button>
+    <button class="tab-btn librarian-only" onclick="switchTab('overdue-all')">⚠️ All Overdue Books</button>
+    <button class="tab-btn librarian-only" onclick="switchTab('import')">📥 Import Google Sheet</button>
+  </nav>
+
+  <main>
+    <div id="scannerBanner" class="scanner-box librarian-only">
+      <div class="scanner-status">
+        <span class="pulse-icon">🔴</span> <strong>Barcode Scanner Active:</strong> Ready for quick scan...
+      </div>
+      <input type="text" id="barcodeInput" placeholder="Scan ISBN or Book Barcode Here..." autofocus>
+    </div>
+
+    <section id="catalog" class="tab-content active">
+      <div class="catalog-header">
+        <h2>Book Catalog</h2>
+        <input type="text" id="catalogSearch" placeholder="Search by Title, Author, or ISBN..." onkeyup="filterCatalog()">
+      </div>
+      <div id="catalogGrid" class="book-grid"></div>
+    </section>
+
+    <section id="my-books" class="tab-content">
+      <h2>My Currently Borrowed Books</h2>
+      <div id="studentLoansList" class="loans-list"></div>
+    </section>
+
+    <section id="circulation" class="tab-content">
+      <h2>Circulation Desk</h2>
+      <div class="circulation-grid">
+        <div class="panel">
+          <h3>Quick Check Out / Check In</h3>
+          <form id="circForm" onsubmit="handleCirculationSubmit(event)">
+            <label>Student ID / Name:</label>
+            <input type="text" id="circStudent" required placeholder="e.g. John Doe">
+            
+            <label>Book ISBN / ID:</label>
+            <input type="text" id="circBookId" required placeholder="e.g. 9780451524935">
+            
+            <div class="form-actions">
+              <button type="submit" name="action" value="checkout" class="btn-primary">Check Out</button>
+              <button type="submit" name="action" value="checkin" class="btn-secondary">Check In</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="panel">
+          <h3>Active Loans Logs</h3>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Book Title</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="activeLoansTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="overdue-all" class="tab-content">
+      <h2>Overdue Books Report</h2>
+      <div id="overdueList" class="overdue-container"></div>
+    </section>
+
+    <section id="import" class="tab-content">
+      <h2>Import Data from Google Sheets</h2>
+      <p>Copy your Google Sheet data and paste it below to update the catalog.</p>
+      <textarea id="csvImportArea" rows="10" placeholder="Format: Title, Author, ISBN, Status&#10;The Great Gatsby, F. Scott Fitzgerald, 9780743273565, Available"></textarea>
+      <button class="btn-primary" onclick="importGoogleSheetData()">Import & Sync Books</button>
+    </section>
+  </main>
+
+  <div id="holdModal" class="modal hidden">
+    <div class="modal-content">
+      <h3>Place Book on Hold</h3>
+      <p id="holdBookTitle"></p>
+      <input type="text" id="holdStudentName" placeholder="Enter Student Name">
+      <div class="modal-buttons">
+        <button onclick="confirmHold()" class="btn-primary">Confirm Hold</button>
+        <button onclick="closeModal()" class="btn-secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
